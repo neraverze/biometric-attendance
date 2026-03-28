@@ -7,15 +7,15 @@ def send_data():
 
     # 2. URL Parameters (Maps to e.parameter in Apps Script)
     url_params = {
-        "action": "polling"
+        "action": "locationRegister"
     }
 
     # 3. Request Body (Maps to e.postData.contents in Apps Script)
     payload = {
         "internId": "1",
-        "lat": "26.70200043589285",
+        "lat": "51.5072",
         "long": "92.83572897921471",
-        "status": "unbounded"
+        # "status": "unbounded"
         # "locationId": "1",
     }
 

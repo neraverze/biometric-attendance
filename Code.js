@@ -20,9 +20,24 @@ function doPost(e) {
                 (message = result.message),
                 (ok = result.status),
             );
+        case "stopAttendance":
+            var contents = JSON.parse(e.postData.contents);
+            var result = stopAttendance(contents);
+            return buildResponse(
+                (message = result.message),
+                (ok = result.status),
+            );
+        case "locationRegister":
+            var contents = JSON.parse(e.postData.contents);
+            var result = registerNewLocation(contents);
+            return buildResponse(
+                (message = result.message),
+                (ok = result.status),
+            );
     }
 }
 
+// Build Return Response
 function buildResponse(message = "Unauthorized", ok = "failed") {
     return ContentService.createTextOutput(
         JSON.stringify({

@@ -1,3 +1,5 @@
+const TOLERANCE_DISTANCE = 0.2; // 200meters
+
 function parsePolling(data) {
     try {
         // Writting the Polling Data
@@ -59,6 +61,44 @@ function startAttendance(data) {
     }
 }
 
+// Stop Attendance
+function stopAttendance(data) {
+    try {
+        // Fetching the existing row
+        var date = new Date().getDate();
+        var row = getAttendanceData(data.internId, date);
+
+        if (!row)
+            return {
+                message: "Intern not found or attendance not started.",
+                status: "failed",
+            };
+
+        // Updating the counters
+        var startTime = new Date(row.startTime).getTime();
+        var endTime = new Date().getTime();
+
+        // Time Elapsed
+        var totalTime = (endTime - startTime) / (60 * 1000);
+
+        row["totalTime"] = totalTime;
+        row["endTime"] = new Date().toISOString();
+        row["totalBoundedTime"] = totalTime - row["totalUnboundedTime"];
+
+        db.updateRowFromObject("attendance", row, "attendanceId");
+
+        return {
+            message: "Attendance stopped for today.",
+            status: "success",
+        };
+    } catch (err) {
+        return {
+            message: err.message || "Something went wrong.",
+            status: "failed",
+        };
+    }
+}
+
 // Update Attendance
 function updateAttendance(internId, data) {
     try {
@@ -92,4 +132,78 @@ function getAttendanceData(internId, date) {
     });
 
     return foundRow;
+}
+
+// register new location
+function registerNewLocation(data) {
+    var intern = db.findRowAsObject("interns", { internId: data.internId });
+    if (!intern)
+        return {
+            message: "Intern not found.",
+            status: "failed",
+        };
+
+    // check for existing locations
+    var found = existingLocations(data.internId, data.lat, data.long);
+    if (found)
+        return {
+            message: "Work location already exists.",
+            status: "failed",
+        };
+
+    // adding the location
+    db.createRowFromObject(
+        "locations",
+        { lat: data.lat, long: data.long, internId: data.internId },
+        "locationId",
+    );
+
+    return {
+        message: "Work location added successfully.",
+        status: "success",
+    };
+}
+
+// find existing locations
+function existingLocations(internId, lat, long) {
+    var rows = db.getRowsByCriteria("locations", { internId: internId });
+    var found = false;
+    for (const row of rows) {
+        found = compareCoordinates(lat, long, row.lat, row.long);
+        if (found) break;
+    }
+
+    return found;
+}
+
+// Compare Coordinates
+function compareCoordinates(lat1, lon1, lat2, lon2) {
+    var distance = calculateDistance(lat1, lon1, lat2, lon2);
+    if (distance <= TOLERANCE_DISTANCE) return true;
+    else return false;
+}
+
+// Haversine Function
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the Earth in kilometers
+
+    // Function to convert degrees to radians
+    function toRad(degree) {
+        return (degree * Math.PI) / 180;
+    }
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+            Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c; // Distance in kilometers
+    return distance;
 }
