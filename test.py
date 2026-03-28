@@ -15,7 +15,8 @@ def send_data():
         "internId": "1",
         "lat": "26.70200043589285",
         "long": "92.83572897921471",
-        "status": "bounded"
+        "status": "unbounded"
+        # "locationId": "1",
     }
 
     try:

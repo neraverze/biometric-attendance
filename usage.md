@@ -16,4 +16,4 @@ For starting the attendance & polling,
         Unbounded means that the device is outside the boundary.
 
 POST ROUTE,
-    action => logIn, polling
+    action => logIn, polling, startAttendance, stopAttendance
