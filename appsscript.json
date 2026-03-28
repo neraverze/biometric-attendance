@@ -1,0 +1,15 @@
+{
+    "timeZone": "Asia/Kolkata",
+    "dependencies": {
+        "libraries": [
+            {
+                "userSymbol": "SpreadsheetDB",
+                "version": "18",
+                "libraryId": "1ceS1ClPEV3wnil_ggY5xDT_8HaqcGjBvaasTcYNsQK80Xd1XUhgOuL2F",
+                "developmentMode": false
+            }
+        ]
+    },
+    "exceptionLogging": "STACKDRIVER",
+    "runtimeVersion": "V8"
+}
